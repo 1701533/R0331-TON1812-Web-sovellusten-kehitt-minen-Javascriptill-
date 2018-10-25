@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  text-align: center;
+  color: black;
+  background-color: #D4D5D6;
+}
+
+header, footer {
+  padding: 10px;
+  font-size: 24px;
+  color: black;
+  background-color: #FEF5F2;
+}
+
+li {
+  font-size: 20px;
+}
+
+kyselyLaatikko {
+  visibility: hidden;
+}
+
+li {
+/* Poistetaan bullet point tyyppinen muotoilu, koska se ei näytä hyvältä */
+  list-style-type: none;
+}
+
+</style>
+
+<script>
+
+// Funktion lisätäänListaan avulla lisätään uusi tehtävä listaan
+function lisätäänListaan() {
+
+  /* Etsitään elementti jonka name on "lisäys" (eli input kenttä).
+  Tämä toimii koska meillä on vain yksi name jonka arvo on "lisäys".
+  Saamme löydetyn elementin arvon .value avulla. */
+  var uusiLisäys = document.forms.ykkösForm.lisäys.value;
+  //Etsitään elementti jonka name on "päiväys" ja otetaan sen arvo
+  var uusiPäiväys = document.forms.ykkösForm.päiväys.value;
+  //Luodaan uusi li-elementti
+  var li = document.createElement("li");
+  /*Luodaan uusi textNode teksti, jonka arvoksi
+  asetetaan: uusiLisäys (väli) uusiPäiväys. */
+  var teksti = document.createTextNode(uusiLisäys + " " + uusiPäiväys);
+  // Lisätään html:ään uusi li-elementti.
+  li.appendChild(teksti);
+
+  // Jos tekstikenttään ei ole kirjoitettu mitään saadaan seuraava ilmoitus.
+  if (uusiLisäys == "") {
+    alert("Et kirjoittanut mitään listaan lisättävää.");
+    //Tekstikentän reunat muuttuvat punaiseksi virheen takia
+    document.forms.ykkösForm.lisäys.style = "border-color: red";
+    return false;
+
+  // Jos tekstikenttään kirjoitettiin alle neljä merkkiä saadaan seuraava ilmoitus.
+  } else if (uusiLisäys.length < 4) {
+    alert("Kijoitit alle neljä kirjainta.");
+    //Tekstikentän reunat muuttuvat punaiseksi virheen takia
+    document.forms.ykkösForm.lisäys.style = "border-color: red";
+    return false;
+
+  } else if (uusiPäiväys == "") {
+    alert("Et antanut päivämäärää.");
+    //Tekstikentän reunat muuttuvat punaiseksi virheen takia
+    document.forms.ykkösForm.päiväys.style = "border-color: red";
+    return false;
+  } else {
+    /* Jos tekstikenttä ei ole tyhjä ja sen sisältö on pidempi kuin 3 merkkiä,
+    lisätään käyttäjän tekstikenttään kirjoittama teksti tehtävälistaan. */
+    document.getElementById("lista").appendChild(li);
+    /* Viimeiseksi asetetaan "lisäys" tagin saama arvo tyhjäksi (ja toistetaan
+    sama päiväyksen kanssa). Tämä tarkoittaasitä ettei meidän tarvitse poistaa
+    viimeksi lisätyn asian nimeä tekstikentästä,vaan aloitamme valmiiksi
+    tyhjällä tekstikentällä. */
+    document.forms.ykkösForm.lisäys.value = "";
+    document.forms.ykkösForm.päiväys.value = "";
+    //Tekstikentän reunat muuttuvat normaaleiksi onnistuneet syötteen jälkeen.
+    document.forms.ykkösForm.lisäys.style = "border-color: black";
+    document.forms.ykkösForm.päiväys.style = "border-color: black";
+    return false;
+  }
+}
+
+// vaihdaVäri -funktion avulla vaihdetaan body:n taustaväriä
+function vaihdaVäri() {
+  /* Aluksi etsitään elementin pulldownValikko:n id:n avulla ja sijoitetaan se
+  muuttujaan var valinta, jotta sitä olisi helpompi käsitellä jatkossa */
+  var valinta = document.getElementById('pulldownValikko').value;
+  /* suoritetaan if-else lause, jossa body:n väri määräytyy var valinta
+  muuttujan mukaisesti */
+  if (valinta == "Sininen") {
+    // Asetetaan body:n uusi väri
+    document.body.style.backgroundColor = "#8DDAD7";
+  } else if (valinta == "Vihreä") {
+    document.body.style.backgroundColor = "#78E48A";
+  } else if (valinta == "Keltainen") {
+    document.body.style.backgroundColor = "#ECF265";
+  } else if (valinta == "Harmaa") {
+    document.body.style.backgroundColor = "#D4D5D6";
+  }
+}
+
+// Funktio annaKysely paljastaa alunperin näkymättömissä olleen listan lista2
+function annaKysely() {
+  // Löydetään lista id:n lista2 avulla, vaihdetaan sen display näkyviin
+  document.getElementById('lista2').style.display = "block";
+}
+
+// Funktio positiivinenPalaute toimii kun käyttäjä sanoo pitävänsä tehtävälistasta
+function positiivinenPalaute() {
+  // Käyttäjä saa ilmoituksen annettuaan palautetta
+  alert("Kiitos palautteesta.");
+  // Uncheckataan checkbox-nappi
+  document.getElementById("kysymysNappi1").checked = false;
+  /* Koska palaute on annettu palaute-kysymystä ei enää tarvitse näyttää,
+  joten se piilotetaan muuttamalla display:n arvo none:ksi. */
+  document.getElementById('lista2').style.display = "none";
+}
+
+// Funktio positiivinenPalaute toimii kun käyttäjä sanoo ettei pidä tehtävälistasta
+function negatiivinenPalaute() {
+  // Käyttäjä saa ilmoituksen annettuaan palautetta
+  alert("Pyrimme kehittämään palveluitamme tulevaisuudessa.");
+  // Uncheckataan checkbox-nappi
+  document.getElementById("kysymysNappi2").checked = false;
+  /* Koska palaute on annettu palaute-kysymystä ei enää tarvitse näyttää,
+  joten se piilotetaan muuttamalla display:n arvo none:ksi. */
+  document.getElementById('lista2').style.display = "none";
+}
+
+</script>
+</head>
+
+<body>
+<header>
+  <h2 >Tehtävälista</h2>
+</header>
+
+  <p> Voit lisätä asioita listaan kirjoittamalla ne tekstikenttään, antamalla
+    päivämäärän ja painamalla lähetä-nappia. Et voi lisätä listaan tyhjiä kenttiä
+    tai alle neljän kirjaimen tehtävää, jos näin tapahtuu saat virheilmoituksen.
+    Merkit virheilmoituksesta katoavat, kun olet syöttänyt listaan hyväksyttävän arvon.</p>
+  <form name="ykkösForm" onsubmit="return lisätäänListaan()">
+    Mitä haluat lisätä listaan?: <input type="text" name="lisäys">
+    <br>
+    Milloin tehtävän pitää olla valmis?: <input type="date" name="päiväys">
+    <br>
+    <!--Kun Lähetä-nappia painetaan lisääListaan ()-funktio suoritetaan.-->
+    <input type="submit" value="Lähetä">
+  </form>
+
+
+  <!--Luodaan tehtävälista-->
+  <ul id="lista">
+  </ul>
+  <br>
+  <br>
+  <p>Muuta sivun taustaväriä</p>
+  <!-- Luodaan pulldownValikko, jonka avulla vaihdetaan sivun taustaväriä -->
+  <select id="pulldownValikko" onchange="vaihdaVäri();">
+    <option value="Sininen">Sininen
+    <option value="Vihreä">Vihreä
+    <option value="Keltainen">Keltainen
+    <option value="Harmaa">Harmaa
+  </select>
+  <br>
+  <br>
+  <footer>
+    <!-- Luodaan nappi, jota painaessa palautekysely tulee näkyviin -->
+    <button onclick="annaKysely();">Anna palautetta</button>
+    <!-- display on ennen Anna palautetta -napin painamista none -->
+    <ul id="lista2" style="display: none;">
+      <li>Pidätkö tehtävälistasta?<li>
+      <!-- Kutsutaan positiivinenPalaute -funktio, kun ruksitaan kyllä vaihtoehto -->
+      <input type="checkbox" id="kysymysNappi1" onclick="positiivinenPalaute();">Kyllä</input>
+      <!-- Kutsutaan negatiivinenPalaute -funktio, kun ruksitaan en vaihtoehto -->
+      <input type="checkbox" id="kysymysNappi2" onclick="negatiivinenPalaute();">En</input>
+    </ul>
+  </footer>
+</body>
+</html>
