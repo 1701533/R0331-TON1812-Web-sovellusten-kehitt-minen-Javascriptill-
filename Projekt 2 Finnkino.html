@@ -1,0 +1,573 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>Finnkinon leffaliput</title>
+
+  <style type="text/css">
+
+  body {
+    font-family: Verdana, Helvetica, sans-serif;
+    text-align: center;
+    background-color: #0d0d0d;
+    color: #F6D700;
+    margin: 0px;
+  }
+
+  header {
+    background-color: #1a1a1a;
+    width: 100%;
+    margin-top: -20px;
+    padding: 20px;
+  }
+
+  button {
+    background-color: #404040;
+    color: #F6D700;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 12px;
+    text-align: center;
+    display: inline-block;
+    font-size: 14px;
+  }
+
+  .pieni {
+    padding: 6px 6px;
+  }
+
+  table {
+    border-collapse: collapse;
+    border-radius: 25px;
+    width: 80%;
+    margin-left: 10%;
+    margin-right: 10%;
+    border: 6px solid #F6D700;
+    background-color: black;
+    color: #F6D700;
+  }
+
+  td {
+    padding: 4px;
+    font-size: 12px;
+    border: 10px solid;
+    border-radius: 25px;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  img {
+    width: 100px;
+  }
+
+  </style>
+
+  <script type="text/javascript">
+
+  // Function etsiElokuva avulla käyttäjä voi etsiä tietoa itseään kiinnostavasta
+  // elokuvasta, jos hän tietää elokuvan nimen. Tietoihin kuuluvat elokuvan
+  // promootiokuva, sen kesto ja genret.
+  function etsiElokuva () {
+    //Tässä poistetaan mahdollinen aikaisempi taulukko ja otsikko
+    var poistaVanha = document.getElementById("taulu");
+    if(poistaVanha) poistaVanha.parentNode.removeChild(poistaVanha);
+    var poistaVanha2 = document.getElementById("otsikko");
+    if(poistaVanha2) poistaVanha2.parentNode.removeChild(poistaVanha2);
+
+    var url= "https://www.finnkino.fi/xml/Schedule/";
+
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+
+    xmlhttp.onreadystatechange = function() {
+      if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+        var xmlDoc = xmlhttp.responseXML;
+
+        var elokuvanNimi = xmlDoc.getElementsByTagName("Title");
+        var elokuvanNimi2 = xmlDoc.getElementsByTagName("Title");
+        var kuva = xmlDoc.getElementsByTagName("EventSmallImagePortrait");
+        var kesto = xmlDoc.getElementsByTagName("LengthInMinutes");
+        var genre = xmlDoc.getElementsByTagName("Genres");
+        var syöte = document.getElementById("hakukenttä").value;
+
+        var taulukko = "<table id=\"taulu\">";
+        for (var i=0; loppu = true; i++) {
+          if (syöte == elokuvanNimi) {
+            taulukko += "<tr>";
+            taulukko += "<td><img src=" + kuva[i].childNodes[0].nodeValue + "></td>";
+            taulukko += "<td>" + elokuvanNimi2[i].childNodes[0].nodeValue + "<br>" + kesto[i].childNodes[0].nodeValue + " min</td>";
+            taulukko += "<td>" + genre[i].childNodes[0].nodeValue + "</td>";
+            taulukko += "</tr>";
+            break;
+          } else {
+            elokuvanNimi = elokuvanNimi[i+1].childNodes[0].nodeValue;
+          }
+        }
+        taulukko += "</table>";
+        document.getElementById("testialue").innerHTML += taulukko;
+      }
+    }
+  }
+
+  //Funktio kaikkiValittu näyttää kaikki kyseisen päivän elokuvanäytökset
+  //pääkaupunkiseudulla.
+  function kaikkiValittu () {
+    var poistaVanha = document.getElementById("taulu");
+    if(poistaVanha) poistaVanha.parentNode.removeChild(poistaVanha);
+    var poistaVanha2 = document.getElementById("otsikko");
+    if(poistaVanha2) poistaVanha2.parentNode.removeChild(poistaVanha2);
+
+    var url= "https://www.finnkino.fi/xml/Schedule/";
+
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+
+      xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+          var xmlDoc = xmlhttp.responseXML;
+
+          var elokuvanNimi = xmlDoc.getElementsByTagName("Title");
+          var kuva = xmlDoc.getElementsByTagName("EventSmallImagePortrait");
+          var kesto = xmlDoc.getElementsByTagName("LengthInMinutes");
+          var elokuvaTeatteri = xmlDoc.getElementsByTagName("Theatre");
+          var saliNumero = xmlDoc.getElementsByTagName("TheatreAuditorium");
+          var naytosAlkaa = xmlDoc.getElementsByTagName("dttmShowStart");
+          var naytosPaattyy = xmlDoc.getElementsByTagName("dttmShowEnd");
+          //Annetaan taulukolle sitä kuvaava nimi, annetaan sille id, jotta se
+          //voidaan poistaa helposti myöhemmin ja sijoitetaan se verkkosivulle
+          var otsikonNimi = "Kaikki pääkaupunkiseudun näytökset";
+          var otsikko = "<h3 id=\"otsikko\">" + otsikonNimi + "<h3>";
+          document.getElementById("testialue").innerHTML += otsikko;
+          //Sijoitetaan halutut tieodot taulukkoon for-loopin avulla
+          //Myös taulukolle annetaan id sen tulevan poistamisen vuoksi
+          var taulukko = "<table id=\"taulu\">";
+          for (var i=0; i < kuva.length; i++) {
+              taulukko += "<tr>";
+              taulukko += "<td><img src=" + kuva[i].childNodes[0].nodeValue + "></td>";
+              taulukko += "<td>" + elokuvanNimi[i].childNodes[0].nodeValue + "<br>" + kesto[i].childNodes[0].nodeValue + " min</td>";
+              taulukko += "<td>" + elokuvaTeatteri[i].childNodes[0].nodeValue + "<br>" + saliNumero[i].childNodes[0].nodeValue + "</td>";
+              //Tässä poistamme saadusta datasta ei haluttuja vuosilukuja ja liian tarkkoja kellonaikoja
+              taulukko += "<td> Näytös alkaa: " + naytosAlkaa[i].childNodes[0].nodeValue.substr(11).slice(0, -3) +
+                          "<br> Näytös päättyy: " + naytosPaattyy[i].childNodes[0].nodeValue.substr(11).slice(0, -3) + "</td>";
+              taulukko += "</tr>";
+          }
+          //For loopin päätyttyä suljemme taulukko tagin ja sijoitamme taulukkon verkkosivulle
+          taulukko += "</table>";
+          document.getElementById("testialue").innerHTML += taulukko;
+      }
+    }
+  }
+  //Tulevat funktiot sisältävät pitkälti samanlaista koodia kuin edellä esitellyt
+  //funktiot. Lukuun ottamatta sitä että tulevat funktiot etsitvät elokuvia
+  //elokuvateatterin perusteella. Ensimmäisessä funktiossa etsimme Sellon
+  // päivän näytökset.
+  function selloValittu () {
+    var poistaVanha = document.getElementById("taulu");
+    if(poistaVanha) poistaVanha.parentNode.removeChild(poistaVanha);
+    var poistaVanha2 = document.getElementById("otsikko");
+    if(poistaVanha2) poistaVanha2.parentNode.removeChild(poistaVanha2);
+
+    var url= "https://www.finnkino.fi/xml/Schedule/";
+
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+
+      xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+          var xmlDoc = xmlhttp.responseXML;
+          //Alustetaan muuttujat for looppia varten
+          var elokuvaTeatteri = xmlDoc.getElementsByTagName("Theatre");
+          var kuva =0;
+          var elokuvanNimi =0;
+          var kesto =0;
+          var elokuvaTeatteri2 =0;
+          var naytosAlkaa =0;
+          var naytosPaattyy =0;
+          var saliNumero = 0;
+
+          var otsikonNimi = "Sellon näytökset";
+          var otsikko = "<h3 id=\"otsikko\">" + otsikonNimi + "<h3>";
+          document.getElementById("testialue").innerHTML += otsikko;
+
+          var taulukko = "<table id=\"taulu\">";
+          //Jokaisella for loopin kierroksella siirrytään seuraavaan haettavaan
+          //elementtiin, mutta ne lisätään verkkosivulle tulevaan taulukkoon
+          //vain silloin kun elokuvaTeatteri2 saa arvon "Sello, Espoo".
+          for (var i=0; i < elokuvaTeatteri.length; i++) {
+            kuva = xmlDoc.getElementsByTagName("EventSmallImagePortrait")[i].childNodes[0].nodeValue;
+            elokuvanNimi = xmlDoc.getElementsByTagName("Title")[i].childNodes[0].nodeValue;
+            kesto = xmlDoc.getElementsByTagName("LengthInMinutes")[i].childNodes[0].nodeValue;
+            elokuvaTeatteri2 = xmlDoc.getElementsByTagName("Theatre")[i].childNodes[0].nodeValue;
+            naytosAlkaa = xmlDoc.getElementsByTagName("dttmShowStart")[i].childNodes[0].nodeValue.substr(11).slice(0, -3);
+            naytosPaattyy = xmlDoc.getElementsByTagName("dttmShowEnd")[i].childNodes[0].nodeValue.substr(11).slice(0, -3);
+            saliNumero = xmlDoc.getElementsByTagName("TheatreAuditorium")[i].childNodes[0].nodeValue;
+
+            if (elokuvaTeatteri2 == "Sello, Espoo") {
+              taulukko += "<tr>";
+              taulukko += "<td><img src=" + kuva + "></td>";
+              taulukko += "<td>" + elokuvanNimi + "<br>" + kesto + " min</td>";
+              taulukko += "<td>" + elokuvaTeatteri2 + "<br>" + saliNumero + "</td>";
+              taulukko += "<td> Näytös alkaa: " + naytosAlkaa + "<br> Näytös päättyy: " + naytosPaattyy + "</td>";
+              taulukko += "</tr>";
+            }
+          }
+          taulukko += "</table>";
+          document.getElementById("testialue").innerHTML += taulukko;
+      }
+    }
+  }
+
+  function omenaValittu () {
+    var poistaVanha = document.getElementById("taulu");
+    if(poistaVanha) poistaVanha.parentNode.removeChild(poistaVanha);
+    var poistaVanha2 = document.getElementById("otsikko");
+    if(poistaVanha2) poistaVanha2.parentNode.removeChild(poistaVanha2);
+
+    var url= "https://www.finnkino.fi/xml/Schedule/";
+
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+
+      xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+          var xmlDoc = xmlhttp.responseXML;
+
+          var elokuvaTeatteri = xmlDoc.getElementsByTagName("Theatre");
+          var kuva =0;
+          var elokuvanNimi =0;
+          var kesto =0;
+          var elokuvaTeatteri2 =0;
+          var naytosAlkaa =0;
+          var naytosPaattyy =0;
+          var saliNumero = 0;
+
+          var otsikonNimi = "Ison Omenan näytökset";
+          var otsikko = "<h3 id=\"otsikko\">" + otsikonNimi + "<h3>";
+          document.getElementById("testialue").innerHTML += otsikko;
+
+          var taulukko = "<table id=\"taulu\">";
+          for (var i=0; i < elokuvaTeatteri.length; i++) {
+            kuva = xmlDoc.getElementsByTagName("EventSmallImagePortrait")[i].childNodes[0].nodeValue;
+            elokuvanNimi = xmlDoc.getElementsByTagName("Title")[i].childNodes[0].nodeValue;
+            kesto = xmlDoc.getElementsByTagName("LengthInMinutes")[i].childNodes[0].nodeValue;
+            elokuvaTeatteri2 = xmlDoc.getElementsByTagName("Theatre")[i].childNodes[0].nodeValue;
+            naytosAlkaa = xmlDoc.getElementsByTagName("dttmShowStart")[i].childNodes[0].nodeValue.substr(11).slice(0, -3);
+            naytosPaattyy = xmlDoc.getElementsByTagName("dttmShowEnd")[i].childNodes[0].nodeValue.substr(11).slice(0, -3);
+            saliNumero = xmlDoc.getElementsByTagName("TheatreAuditorium")[i].childNodes[0].nodeValue;
+
+            if (elokuvaTeatteri2 == "Omena, Espoo") {
+              taulukko += "<tr>";
+              taulukko += "<td><img src=" + kuva + "></td>";
+              taulukko += "<td>" + elokuvanNimi + "<br>" + kesto + " min</td>";
+              taulukko += "<td>" + elokuvaTeatteri2 + "<br>" + saliNumero + "</td>";
+              taulukko += "<td> Näytös alkaa: " + naytosAlkaa + "<br> Näytös päättyy: " + naytosPaattyy + "</td>";
+              taulukko += "</tr>";
+            }
+          }
+          taulukko += "</table>";
+          document.getElementById("testialue").innerHTML += taulukko;
+      }
+    }
+  }
+
+  function itisValittu () {
+    var poistaVanha = document.getElementById("taulu");
+    if(poistaVanha) poistaVanha.parentNode.removeChild(poistaVanha);
+    var poistaVanha2 = document.getElementById("otsikko");
+    if(poistaVanha2) poistaVanha2.parentNode.removeChild(poistaVanha2);
+
+    var url= "https://www.finnkino.fi/xml/Schedule/";
+
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+
+      xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+          var xmlDoc = xmlhttp.responseXML;
+
+          var elokuvaTeatteri = xmlDoc.getElementsByTagName("Theatre");
+          var kuva =0;
+          var elokuvanNimi =0;
+          var kesto =0;
+          var elokuvaTeatteri2 =0;
+          var naytosAlkaa =0;
+          var naytosPaattyy =0;
+          var saliNumero = 0;
+
+          var otsikonNimi = "Itäkeskuksen näytökset";
+          var otsikko = "<h3 id=\"otsikko\">" + otsikonNimi + "<h3>";
+          document.getElementById("testialue").innerHTML += otsikko;
+
+          var taulukko = "<table id=\"taulu\">";
+            for (var i=0; i < elokuvaTeatteri.length; i++) {
+              kuva = xmlDoc.getElementsByTagName("EventSmallImagePortrait")[i].childNodes[0].nodeValue;
+              elokuvanNimi = xmlDoc.getElementsByTagName("Title")[i].childNodes[0].nodeValue;
+              kesto = xmlDoc.getElementsByTagName("LengthInMinutes")[i].childNodes[0].nodeValue;
+              elokuvaTeatteri2 = xmlDoc.getElementsByTagName("Theatre")[i].childNodes[0].nodeValue;
+              naytosAlkaa = xmlDoc.getElementsByTagName("dttmShowStart")[i].childNodes[0].nodeValue.substr(11).slice(0, -3);
+              naytosPaattyy = xmlDoc.getElementsByTagName("dttmShowEnd")[i].childNodes[0].nodeValue.substr(11).slice(0, -3);
+              saliNumero = xmlDoc.getElementsByTagName("TheatreAuditorium")[i].childNodes[0].nodeValue;
+
+              if (elokuvaTeatteri2 == "Itis, Helsinki") {
+                taulukko += "<tr>";
+                taulukko += "<td><img src=" + kuva + "></td>";
+                taulukko += "<td>" + elokuvanNimi + "<br>" + kesto + " min</td>";
+                taulukko += "<td>" + elokuvaTeatteri2 + "<br>" + saliNumero + "</td>";
+                taulukko += "<td> Näytös alkaa: " + naytosAlkaa + "<br> Näytös päättyy: " + naytosPaattyy + "</td>";
+                taulukko += "</tr>";
+              }
+            }
+            taulukko += "</table>";
+            document.getElementById("testialue").innerHTML += taulukko;
+        }
+      }
+    }
+
+  function kinoValittu () {
+    var poistaVanha = document.getElementById("taulu");
+    if(poistaVanha) poistaVanha.parentNode.removeChild(poistaVanha);
+
+    var poistaVanha2 = document.getElementById("otsikko");
+    if(poistaVanha2) poistaVanha2.parentNode.removeChild(poistaVanha2);
+
+    var url= "https://www.finnkino.fi/xml/Schedule/";
+
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+
+      xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+          var xmlDoc = xmlhttp.responseXML;
+
+          var elokuvaTeatteri = xmlDoc.getElementsByTagName("Theatre");
+          var kuva =0;
+          var elokuvanNimi =0;
+          var kesto =0;
+          var elokuvaTeatteri2 =0;
+          var naytosAlkaa =0;
+          var naytosPaattyy =0;
+          var saliNumero = 0;
+
+          var otsikonNimi = "Kinopalatsin näytökset";
+          var otsikko = "<h3 id=\"otsikko\">" + otsikonNimi + "<h3>";
+          document.getElementById("testialue").innerHTML += otsikko;
+
+          var taulukko = "<table id=\"taulu\">";
+          for (var i=0; i < elokuvaTeatteri.length; i++) {
+            kuva = xmlDoc.getElementsByTagName("EventSmallImagePortrait")[i].childNodes[0].nodeValue;
+            elokuvanNimi = xmlDoc.getElementsByTagName("Title")[i].childNodes[0].nodeValue;
+            kesto = xmlDoc.getElementsByTagName("LengthInMinutes")[i].childNodes[0].nodeValue;
+            elokuvaTeatteri2 = xmlDoc.getElementsByTagName("Theatre")[i].childNodes[0].nodeValue;
+            naytosAlkaa = xmlDoc.getElementsByTagName("dttmShowStart")[i].childNodes[0].nodeValue.substr(11).slice(0, -3);
+            naytosPaattyy = xmlDoc.getElementsByTagName("dttmShowEnd")[i].childNodes[0].nodeValue.substr(11).slice(0, -3);
+            saliNumero = xmlDoc.getElementsByTagName("TheatreAuditorium")[i].childNodes[0].nodeValue;
+
+            if (elokuvaTeatteri2 == "Kinopalatsi, Helsinki") {
+              taulukko += "<tr>";
+              taulukko += "<td><img src=" + kuva + "></td>";
+              taulukko += "<td>" + elokuvanNimi + "<br>" + kesto + " min</td>";
+              taulukko += "<td>" + elokuvaTeatteri2 + "<br>" + saliNumero + "</td>";
+              taulukko += "<td> Näytös alkaa: " + naytosAlkaa + "<br> Näytös päättyy: " + naytosPaattyy + "</td>";
+              taulukko += "</tr>";
+            }
+          }
+          taulukko += "</table>";
+          document.getElementById("testialue").innerHTML += taulukko;
+      }
+    }
+  }
+
+  function maximValittu () {
+    var poistaVanha = document.getElementById("taulu");
+    if(poistaVanha) poistaVanha.parentNode.removeChild(poistaVanha);
+    var poistaVanha2 = document.getElementById("otsikko");
+    if(poistaVanha2) poistaVanha2.parentNode.removeChild(poistaVanha2);
+
+    var url= "https://www.finnkino.fi/xml/Schedule/";
+
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+
+      xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+          var xmlDoc = xmlhttp.responseXML;
+
+          var elokuvaTeatteri = xmlDoc.getElementsByTagName("Theatre");
+          var kuva =0;
+          var elokuvanNimi =0;
+          var kesto =0;
+          var elokuvaTeatteri2 =0;
+          var naytosAlkaa =0;
+          var naytosPaattyy =0;
+          var saliNumero = 0;
+
+          var otsikonNimi = "Maximin näytökset";
+          var otsikko = "<h3 id=\"otsikko\">" + otsikonNimi + "<h3>";
+          document.getElementById("testialue").innerHTML += otsikko;
+
+          var taulukko = "<table id=\"taulu\">";
+          for (var i=0; i < elokuvaTeatteri.length; i++) {
+            kuva = xmlDoc.getElementsByTagName("EventSmallImagePortrait")[i].childNodes[0].nodeValue;
+            elokuvanNimi = xmlDoc.getElementsByTagName("Title")[i].childNodes[0].nodeValue;
+            kesto = xmlDoc.getElementsByTagName("LengthInMinutes")[i].childNodes[0].nodeValue;
+            elokuvaTeatteri2 = xmlDoc.getElementsByTagName("Theatre")[i].childNodes[0].nodeValue;
+            naytosAlkaa = xmlDoc.getElementsByTagName("dttmShowStart")[i].childNodes[0].nodeValue.substr(11).slice(0, -3);
+            naytosPaattyy = xmlDoc.getElementsByTagName("dttmShowEnd")[i].childNodes[0].nodeValue.substr(11).slice(0, -3);
+            saliNumero = xmlDoc.getElementsByTagName("TheatreAuditorium")[i].childNodes[0].nodeValue;
+
+            if (elokuvaTeatteri2 == "Maxim, Helsinki") {
+              taulukko += "<tr>";
+              taulukko += "<td><img src=" + kuva + "></td>";
+              taulukko += "<td>" + elokuvanNimi + "<br>" + kesto + " min</td>";
+              taulukko += "<td>" + elokuvaTeatteri2 + "<br>" + saliNumero + "</td>";
+              taulukko += "<td> Näytös alkaa: " + naytosAlkaa + "<br> Näytös päättyy: " + naytosPaattyy + "</td>";
+              taulukko += "</tr>";
+            }
+          }
+          taulukko += "</table>";
+          document.getElementById("testialue").innerHTML += taulukko;
+      }
+    }
+  }
+
+  function tennariValittu () {
+    var poistaVanha = document.getElementById("taulu");
+    if(poistaVanha) poistaVanha.parentNode.removeChild(poistaVanha);
+    var poistaVanha2 = document.getElementById("otsikko");
+    if(poistaVanha2) poistaVanha2.parentNode.removeChild(poistaVanha2);
+
+    var url= "https://www.finnkino.fi/xml/Schedule/";
+
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+
+      xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+          var xmlDoc = xmlhttp.responseXML;
+
+          var elokuvaTeatteri = xmlDoc.getElementsByTagName("Theatre");
+          var kuva =0;
+          var elokuvanNimi =0;
+          var kesto =0;
+          var elokuvaTeatteri2 =0;
+          var naytosAlkaa =0;
+          var naytosPaattyy =0;
+          var saliNumero = 0;
+
+          var otsikonNimi = "Tennispalatsin näytökset";
+          var otsikko = "<h3 id=\"otsikko\">" + otsikonNimi + "<h3>";
+          document.getElementById("testialue").innerHTML += otsikko;
+
+          var taulukko = "<table id=\"taulu\">";
+          for (var i=0; i < elokuvaTeatteri.length; i++) {
+            kuva = xmlDoc.getElementsByTagName("EventSmallImagePortrait")[i].childNodes[0].nodeValue;
+            elokuvanNimi = xmlDoc.getElementsByTagName("Title")[i].childNodes[0].nodeValue;
+            kesto = xmlDoc.getElementsByTagName("LengthInMinutes")[i].childNodes[0].nodeValue;
+            elokuvaTeatteri2 = xmlDoc.getElementsByTagName("Theatre")[i].childNodes[0].nodeValue;
+            naytosAlkaa = xmlDoc.getElementsByTagName("dttmShowStart")[i].childNodes[0].nodeValue.substr(11).slice(0, -3);
+            naytosPaattyy = xmlDoc.getElementsByTagName("dttmShowEnd")[i].childNodes[0].nodeValue.substr(11).slice(0, -3);
+            saliNumero = xmlDoc.getElementsByTagName("TheatreAuditorium")[i].childNodes[0].nodeValue;
+
+            if (elokuvaTeatteri2 == "Tennispalatsi, Helsinki") {
+              taulukko += "<tr>";
+              taulukko += "<td><img src=" + kuva + "></td>";
+              taulukko += "<td>" + elokuvanNimi + "<br>" + kesto + " min</td>";
+              taulukko += "<td>" + elokuvaTeatteri2 + "<br>" + saliNumero + "</td>";
+              taulukko += "<td> Näytös alkaa: " + naytosAlkaa + "<br> Näytös päättyy: " + naytosPaattyy + "</td>";
+              taulukko += "</tr>";
+            }
+          }
+          taulukko += "</table>";
+          document.getElementById("testialue").innerHTML += taulukko;
+      }
+    }
+  }
+
+  function flamingoValittu () {
+    var poistaVanha = document.getElementById("taulu");
+    if(poistaVanha) poistaVanha.parentNode.removeChild(poistaVanha);
+    var poistaVanha2 = document.getElementById("otsikko");
+    if(poistaVanha2) poistaVanha2.parentNode.removeChild(poistaVanha2);
+
+    var url= "https://www.finnkino.fi/xml/Schedule/";
+
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+
+      xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+          var xmlDoc = xmlhttp.responseXML;
+
+          var elokuvaTeatteri = xmlDoc.getElementsByTagName("Theatre");
+          var kuva =0;
+          var elokuvanNimi =0;
+          var kesto =0;
+          var elokuvaTeatteri2 =0;
+          var naytosAlkaa =0;
+          var naytosPaattyy =0;
+          var saliNumero = 0;
+
+          var otsikonNimi = "Flamingon näytökset";
+          var otsikko = "<h3 id=\"otsikko\">" + otsikonNimi + "<h3>";
+          document.getElementById("testialue").innerHTML += otsikko;
+
+          var taulukko = "<table id=\"taulu\">";
+          for (var i=0; i < elokuvaTeatteri.length; i++) {
+            kuva = xmlDoc.getElementsByTagName("EventSmallImagePortrait")[i].childNodes[0].nodeValue;
+            elokuvanNimi = xmlDoc.getElementsByTagName("Title")[i].childNodes[0].nodeValue;
+            kesto = xmlDoc.getElementsByTagName("LengthInMinutes")[i].childNodes[0].nodeValue;
+            elokuvaTeatteri2 = xmlDoc.getElementsByTagName("Theatre")[i].childNodes[0].nodeValue;
+            naytosAlkaa = xmlDoc.getElementsByTagName("dttmShowStart")[i].childNodes[0].nodeValue.substr(11).slice(0, -3);
+            naytosPaattyy = xmlDoc.getElementsByTagName("dttmShowEnd")[i].childNodes[0].nodeValue.substr(11).slice(0, -3);
+            saliNumero = xmlDoc.getElementsByTagName("TheatreAuditorium")[i].childNodes[0].nodeValue;
+
+            if (elokuvaTeatteri2 == "Flamingo, Vantaa") {
+              taulukko += "<tr>";
+              taulukko += "<td><img src=" + kuva + "></td>";
+              taulukko += "<td>" + elokuvanNimi + "<br>" + kesto + " min</td>";
+              taulukko += "<td>" + elokuvaTeatteri2 + "<br>" + saliNumero + "</td>";
+              taulukko += "<td> Näytös alkaa: " + naytosAlkaa + "<br> Näytös päättyy: " + naytosPaattyy + "</td>";
+              taulukko += "</tr>";
+            }
+          }
+          taulukko += "</table>";
+          document.getElementById("testialue").innerHTML += taulukko;
+      }
+    }
+  }
+</script>
+</head>
+<body>
+  <header>
+    <h1>Finnkinon Elokuvat</h1>
+
+  <p>Valitse pääkaupunkiseudun elokuvateatteri, jonka tämän päivän ohjelmiston haluat nähdä.
+    Huomioi että sivun lataamisessa voi kestää. Alla olevasta hakukentästä voit myös hakea elokuvaa
+    sen täsmällisellä nimellä.</p>
+    <input id="hakukenttä"></input>
+    <button class="pieni" id="search" onclick="etsiElokuva()">Hae</button>
+    <br>
+    <br>
+
+    <button value="pääkaupunkiseutu" onclick="kaikkiValittu()">Pääkaupunkiseutu</button>
+    <button value="sello" onclick="selloValittu()">Sello, Espoo</button>
+    <button value="omena" onclick="omenaValittu()">Iso Omena, Espoo</button>
+    <button value="itis" onclick="itisValittu()">Itäkeskus, Helsinki</button>
+    <br>
+    <br>
+    <button value="kino" onclick="kinoValittu()">Kinopalatsi, Helsinki</button>
+    <button value="maxim" onclick="maximValittu()">Maxim, Helsinki</button>
+    <button value="tennis" onclick="tennariValittu()">Tennispalatsi, Helsinki</button>
+    <button value="flamingo" onclick="flamingoValittu()">Flamingo, Vantaa</button>
+  </header>
+  <p id="testialue"></p>
+</body>
+</html>
